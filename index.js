@@ -58,13 +58,13 @@ app.get('/faculdade/localizacao', async (req,res) => {
 
 })
 
-app.get("/deletar/usuario", async (req,res) => {
+app.delete("/deletar/usuario/:id", async (req,res) => {
     
-    const { id } = req.body
+    const { id } = req.params
 
     console.log("aqui é request", req.body)
 
-    if( id === undefined || id === null || !id ){
+    if( !id ){
         return res.status(400).json({message: "Informe o ID do usuário."})
     }
 
@@ -72,11 +72,12 @@ app.get("/deletar/usuario", async (req,res) => {
         const [rows, fields] = await pool.query('SELECT * FROM usuario WHERE id = ?', [id])
         console.log("linha do BD", rows)
 
-        if(rows.id === null){
-            return res.status(400).json({ message: 'Este id não esta cadastrado.'})
+        if(rows.length <= 0){
+            console.log(rows)
+            return res.status(404).json({message: "Esse registro não existe"})
         }
 
-        await pool.query('DELETE FROM usuario WHERE id = ?' , [rows[0].id])
+        await pool.query('DELETE FROM usuario WHERE id = ?' , [id])
 
         return res.status(200).json({message: 'Usuario DELETADO!!'})
     } catch (error){
@@ -115,7 +116,24 @@ app.post("/criar/usuario", async (req,res) => {
 app.put("/pegar/:id", async function(req, res){
     var { id } = req.params
 
-    res.status(200).json({id: id})
+    try{
+        //Verifica se o registro existe
+        const [rows] = await pool.query('SELECT * FROM usuario where id = ?', [id])
+      
+        
+        if(rows.length <= 0){
+            console.log(rows)
+            return res.status(404).json({message: "Esse registro não existe"})
+        }
+
+        await pool.query('UPDATE usuario set nome = ?, senha = ?, WHERE id = ?' [id])
+
+        res.status(200).json({ id:id })
+    } catch (error){
+        console.error(error)
+        return res.status(500).json({message: 'Erro ao Registrar no banco de dados.'})
+    }
+
 })
 
 app.listen(3000, function(){
