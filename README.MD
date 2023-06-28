@@ -10,5 +10,11 @@
 4 PASSO
 ### npm install mysql2
 
+5 PASSO
+### npm install cors
+
+6 PASSO
+### https://sweetalert2.github.io/
+'
 RODAR SERVER
 ### npm start
